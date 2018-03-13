@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="{{ url_for('static', filename='js/vue.min.js')}}"></script>
+    <script src="../static/js/vue.min.js"></script>
+    <title>app-{% block title %}{% endblock %}</title>
+
+</head>
+<body>
+<h1>你好哇</h1>
+<form action="{{ url_for('blog.index')}}" method="get">
+    <table>
+        <tr>
+            <td>姓名：</td>
+            <td>
+                <input type="text" name="name" id="demo1" value="" placeholder="请输入名字">
+            </td>
+        </tr>
+        <tr>
+            <input type="button" onclick="check_name()" value="确认">
+        </tr>
+        <tr>
+             <td>性别：</td>
+             <td>
+                <input type="text" name="sex" id="demo2" value="" placeholder="输入性别">
+             </td>
+
+        </tr>
+    </table>
+</form>
+<script type="text/javascript">
+    function check_name() {
+        var name=document.getElementById('demo1').value
+        var re;
+        re = /[\w+\d+]/;
+        if(!re.test(name)){
+            alert("请输入只有数字和字母的用户名")
+            document.getElementById('demo1').value = ""
+        }
+    }
+
+
+    function displayDate(){
+        document.getElementById("demo").innerHTML = Date()
+    }
+</script>
+<p>我的第一个javascript demo</p>
+<p id="demo">在这里显示时间</p>
+<button onclick="displayDate()">显示日期</button>
+<div id="app1">
+    <h1>site:${ site }</h1>
+    <h1>url:${ url }</h1>
+    <h1>${ details() }</h1>
+    <h1>时间：${ a_function() }</h1>
+</div>
+<div id="app2">
+    <p1>你好！${ message }</p1>
+    <input v-model = "message">
+</div>
+<script type="text/javascript">
+ var app1 = new Vue({
+        delimiters: ['${', '}'],
+        el: '#app1',
+        data: {
+            site: "百度首页",
+            url: "www.baidu.com"
+        },
+        methods: {
+            details: function () {
+                return this.site + "for better life";
+            },
+            a_function: function () {
+                return document.write(Date())
+            }
+        }
+    })
+    var app2= new Vue({
+        delimiters:['${','}'],
+        el: '#app2',
+        data:{
+            message:''
+        }
+        }
+    )
+</script>
+{% block content %} {% endblock %}
+</body>
+</html>
