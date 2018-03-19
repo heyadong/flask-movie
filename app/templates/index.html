@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <script src="{{ url_for('static', filename='js/vue.min.js')}}"></script>
-    <script src="../static/js/vue.min.js"></script>
-    <title>app-{% block title %}{% endblock %}</title>
-
-</head>
-<body>
+{% extends "base.html" %}
+<!-- 模板继承 （extends 'base.html' -->
+{% block content %}
 <h1>你好哇</h1>
 <form action="{{ url_for('blog.index')}}" method="get">
     <table>
@@ -84,6 +77,4 @@
         }
     )
 </script>
-{% block content %} {% endblock %}
-</body>
-</html>
+{% endblock %}

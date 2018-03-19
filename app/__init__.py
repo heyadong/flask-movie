@@ -1,10 +1,14 @@
 from flask import Flask
 import os
-from flask.ext.sqlalchemy import SQLAlchemy
+import pymysql
+from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = "hard"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'datanihao.sqlite')
+# URI的格式链接mysql: 驱动+链接数据库+：//用户名：密码@数据库地址
+# mysql 链接方式："pymysql+mysql://root：password@localhost:3306/flaskdev
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'datanihao.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost:3306/my_db'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
@@ -13,7 +17,7 @@ db.create_all()  # 创建表
 from app.blog import blog as blog_blueprint
 from app.admin import admin as admin_blueprint
 app.register_blueprint(blog_blueprint)
-app.register_blueprint(admin_blueprint)
+app.register_blueprint(admin_blueprint,url_prefix="/admin/")
 # 配置数据库
 
 
