@@ -1,4 +1,4 @@
-这是一个用FLask 搭建的微电影网站
+<h3>这是一个用FLask 搭建的微电影网站</h3>
 
 day1 2018-3-20：
 
@@ -38,8 +38,8 @@ vue.js 结构：
  
  methods：函数
  
-"<div id='app' class="list-group-item" v-bind:class="{active:isactive}"> </div>"
+"{<div id='app' class="list-group-item" v-bind:class="{active:isactive}"> </div>}"
 
 使用v-bind指令 当isactive==true 将给div添加一个active 样式相当于：
 
-"<div id='app' class="list-group-item active"> </div>"
+"{<div id='app' class="list-group-item active"> </div>}"
