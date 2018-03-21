@@ -19,7 +19,7 @@ vue.js 结构：
           },
          },
  })
- ,
+ 
  delimiters: 更改转义字符 delimiters:['${','}'] Vue.js默认转义字符是{{ }},与jinja2的默认转义字符相同，
  前后端未完全分离会导致错误的转义， 使用delimiters将Vue.js的转义字符更改为 ${ }.
  
