@@ -10,20 +10,49 @@ vue.js 结构：
 
 
  var = new Vue({
+ 
+ 
      delimiters:['${','}'],
+     
+     
      el: #app,
+     
      data:{
+     
+     
      isactive:true
+     
+     
      site:"baidu.com"
+     
+     
      },
+     
+     
      methods:{
+     
+     
          function1: function(){
+         
+         
              return this.site
+             
+             
           },
+          
+          
           function2: function(){
+          
+          
               return null
+              
+              
           },
+          
+          
          },
+         
+         
  })
  
  
