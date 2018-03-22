@@ -4,7 +4,8 @@ from . import blog
 from app.models import Admin
 from app import db
 
-@blog.route("/",methods=["GET","POST"])
+
+@blog.route("/", methods=["GET", "POST"])
 def index():
 
     # 增加admin账号
@@ -17,11 +18,15 @@ def index():
     # user = Admin.query.filter_by(role_id=1).first()
     # print(request.args.get('name'))
     return render_template('index.html')
+
+
 # 登陆
 @blog.route('/login/')
 # 注意路由使用'/login/'
 def login():
     return render_template('home/login.html')
+
+
 # 登出
 @blog.route('/logout/')
 def logout():
@@ -29,35 +34,41 @@ def logout():
     return redirect(url_for("blog.login"))
 
 
-@blog.route('/password/')
 # 更改密码
+@blog.route('/password/')
 def password():
     return render_template('home/password.html')
+
 
 # 用户中心页面
 @blog.route('/user/')
 def user():
     return render_template('home/user.html')
 
+
 # 首页
 @blog.route('/index/')
 def index1():
     return render_template('home/index.html')
+
 
 # 评论页面
 @blog.route('/comment/')
 def comment():
     return render_template('home/comment.html')
 
+
 # 电影收藏
 @blog.route('/moviecol/')
 def moviecol():
     return render_template('home/moviecol.html')
 
+
 # 注册
 @blog.route('/register/')
 def register():
     return render_template('home/register.html')
+
 
 # 登陆日志
 @blog.route('/loginlog/')
@@ -70,9 +81,13 @@ def loginlog():
 def animation():
     return render_template("home/animation.html")
 
+
 # 搜索
 @blog.route('/search/')
 def search():
     return render_template("home/search.html")
 
-
+# 播放
+@blog.route('/play/')
+def play():
+    return render_template("home/play.html")
