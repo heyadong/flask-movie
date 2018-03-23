@@ -43,3 +43,35 @@ vue.js 结构：
 使用v-bind指令 当isactive==true 将给div添加一个active 样式相当于：
 
 "{<div id='app' class="list-group-item active"> </div>}"
+
+day4 2018-3-22
+<h3>自定义404页面：</h3>
+
+注意在app 的 __init__ 文件里定义错误处理的路由：方式如下：
+
+  {( 
+
+  @app.errorhandler(404)
+  def page_not_found(error):
+      return render_template('404.html')
+    
+    )}
+    
+<h3>后台管理页面搭建：</h3>
+
+flask 蓝图flask.Blueprint 蓝图可以使app各模块分离，使程序结构更加清晰 容易维护
+
+蓝图定义：
+
+ admin __init__ 下定义：
+ 
+ admin = Blueprint('admin', __name__)
+ 
+ 在app __init__ 注册 app.register_blueprint(admin, url_prefix="/admin")
+ 
+ 注意 url_prefix 参数 将使admin 的访问地址变为 localhost:5000/admin
+ 
+ 因此可以使用url_prefix 动态的创建路由
+ 
+ 蓝图定以后 路由的定义为@admin.route('/')
+
