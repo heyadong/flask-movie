@@ -99,5 +99,18 @@ check_password_hash(a,b) 比较两个值的hash值是否相同，返回True,Fals
       account = StringField()
       password = PasswordField()
       
-StringFeild()都可以传入关键字参数 :validators=[]   验证消息
-                                  render_kw{} 表单其他信息css样式
+StringFeild()都可以传入关键字参数 :
+
+validators=[]   验证消息
+
+render_kw{} 表单其他信息css样式
+
+1.前端渲染表单提示消息使用，form.account.errors
+
+     {% for error in form.account.errors %}
+     {% endfor %}
+
+2.flask消息的闪现，提示密码输入错误。前端使用for循环，
+
+    {% for message in get_flashed_messages() %}
+    {% endfor %}
