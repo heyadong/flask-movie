@@ -150,6 +150,10 @@ class Admin(db.Model):
     def __repr__(self):
         return '<admin %r>' % self.name
 
+    # 在模型中定义检验密码的方法
+    def check_pw(self, password):
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password,password)
 
 # 操作日志
 class Adminlog(db.Model):

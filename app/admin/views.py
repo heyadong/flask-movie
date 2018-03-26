@@ -1,6 +1,14 @@
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect,flash ,request,session
 from . import admin
-
+from .forms import LoginForm
+from app.models import Admin
+from werkzeug.security import generate_password_hash
+from functools import wraps
+# def admin_login_req(func):
+#     @wraps(func)
+#     def decr
+#
+#
 
 @admin.route('/', methods=["GET", "POST"])
 def index():
@@ -9,7 +17,20 @@ def index():
 
 @admin.route('/login/',methods=["GET","POST"])
 def login():
-    return render_template("hdmin/login.html")
+    form = LoginForm()
+    if form.validate_on_submit():
+        # 获取form表单数据
+        data = form.data
+        print(data.get("account"))
+        admin = Admin.query.filter_by(name=data['account']).first()
+        print(admin.name, admin.password)
+        if not admin.check_pw(data['password']):
+            flash("输入密码不正确")
+            return redirect(url_for("admin.login"))
+        # if generate_password_hash(data['password']) == admin.password:
+        session['admin'] = data["account"]
+        return redirect(url_for("admin.index"))
+    return render_template("hdmin/login.html",form=form)
 
 
 @admin.route('/loginout/')

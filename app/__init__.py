@@ -4,7 +4,7 @@ import pymysql
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SECRET_KEY'] = "hard"
+app.config['SECRET_KEY'] = "hardguess"
 # URI的格式链接mysql: 驱动+链接数据库+：//用户名：密码@数据库地址
 # mysql 链接方式："pymysql+mysql://root：password@localhost:3306/flaskdev
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'datanihao.sqlite')
