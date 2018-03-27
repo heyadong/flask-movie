@@ -9,7 +9,7 @@ day1 2018-3-20：
 vue.js 结构：
 
 
- var = new Vue({
+    var = new Vue({
  
      delimiters:['${','}'],
      el: #app,
@@ -25,7 +25,7 @@ vue.js 结构：
               return null     
           },
          },       
- })
+     })
  
  
  delimiters: 更改转义字符 delimiters:['${','}'] Vue.js默认转义字符是{{ }},与jinja2的默认转义字符相同，
@@ -109,7 +109,7 @@ render_kw{} 表单其他信息css样式
 
      {% for error in form.account.errors %}
      {% endfor %}
-
+     
 2.flask消息的闪现，提示密码输入错误。前端使用for循环，
   flash（）用法
   
@@ -118,4 +118,4 @@ render_kw{} 表单其他信息css样式
     {% for message in get_flashed_messages() %}
     {% endfor %}
     
---
+day6 2018-3-27
