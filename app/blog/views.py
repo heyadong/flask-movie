@@ -1,9 +1,9 @@
 # coding:utf-8
-from flask import render_template,url_for,request,redirect
+from flask import render_template,url_for,request,redirect,session
 from . import blog
-from app.models import Admin
+from app.models import User
 from app import db
-
+from .forms import Userlogin_form
 
 @blog.route("/", methods=["GET", "POST"])
 def index():
@@ -21,10 +21,17 @@ def index():
 
 
 # 登陆
-@blog.route('/login/')
+@blog.route('/login/',methods=["GET", "POST"])
 # 注意路由使用'/login/'
 def login():
-    return render_template('home/login.html')
+    form = Userlogin_form()
+    if form.validate_on_submit():
+        data = form.data
+        user = User.query.filter_by(name=data["username"]).first()
+        if user.check_pw(data['password']):
+            session['user'] = user.uuid
+            return redirect(url_for("blog.index1"))
+    return render_template('home/login.html', form=form)
 
 
 # 登出

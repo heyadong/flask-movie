@@ -39,3 +39,20 @@ class LoginForm(FlaskForm):
         if admin == 0:
             raise ValidationError("账号不存在")
 
+
+# 添加标签表单
+class TagForm(FlaskForm):
+    tag_name = StringField(
+        label="标签",
+        validators=[DataRequired("请输入标签名称")],
+        description="tag's name",
+        render_kw={
+            "class": "form-control",
+            "placeholder":"请输入标签名称！"
+        }
+    )
+    add = SubmitField(
+        "添加",
+        render_kw={"class":"btn btn-primary"}
+    )
+

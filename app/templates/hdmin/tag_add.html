@@ -14,15 +14,17 @@
                         <div class="box-header with-border">
                             <h3 class="box-title">添加标签</h3>
                         </div>
-                        <form role="form">
+                        <form role="form" method="post">
                             <div class="box-body">
                                 <div class="form-group">
                                     <label for="input_name">标签名称</label>
-                                    <input type="text" class="form-control" id="input_name" placeholder="请输入标签名称！">
+{#                                    <input type="text" class="form-control" id="input_name" placeholder="请输入标签名称！">#}
+                                    {{ form.tag_name }}
                                 </div>
                             </div>
                             <div class="box-footer">
-                                <button type="submit" class="btn btn-primary">添加</button>
+{#                                <button type="submit" class="btn btn-primary">添加</button>#}
+                                {{ form.add }}
                             </div>
                         </form>
                     </div>
