@@ -34,16 +34,18 @@
                                     <th>添加时间</th>
                                     <th>操作事项</th>
                                 </tr>
+                                {% for tag in tags %}
                                 <tr>
-                                    <td>1</td>
-                                    <td>科幻</td>
-                                    <td>2017-06-01</td>
+                                    <td>{{ tag.id }}</td>
+                                    <td>{{ tag.name }}</td>
+                                    <td>{{ tag.add_time }}</td>
                                     <td>
                                         <a class="label label-success">编辑</a>
                                         &nbsp;
-                                        <a class="label label-danger">删除</a>
+                                        <a onclick="show_confirm()" class="label label-danger" href="{{ url_for("admin.tag_delete",id=tag.id) }}">删除</a>
                                     </td>
                                 </tr>
+                                {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -62,4 +64,14 @@
                 </div>
             </div>
         </section>
+{% endblock %}
+{% block js %}
+    <script>
+        function show_confirm() {
+            var result = confirm("是否删除")
+            if(result) alert('删除成功')
+            else {return false}
+        }
+
+    </script>
 {% endblock %}

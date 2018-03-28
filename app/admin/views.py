@@ -40,7 +40,7 @@ def login():
         # if generate_password_hash(data['password']) == admin.password:
         session['admin'] = data["account"]
         return redirect(url_for("admin.index"))
-    return render_template("hdmin/login.html",form=form)
+    return render_template("hdmin/login.html", form=form)
 
 
 @admin.route('/loginout/')
@@ -58,30 +58,44 @@ def password():
 
 
 # 标签添加
-@admin.route('/tag/add/')
+@admin.route('/tag/add/',methods=["GET","POST"])
 @admin_login_req
 def tag_add():
     form = TagForm()
     if form.validate_on_submit():
+        print("niha1")
         tag_data = form.data
+        print(tag_data['tag_name'])
         tag = Tag.query.filter_by(name=tag_data["tag_name"]).first()
+        print(tag)
         if tag:
             flash("标签已存在，请不要重复添加","err")
             return redirect(url_for("admin.tag_add"))
         tags = Tag(name=tag_data["tag_name"])
         db.session.add(tags)
-        db.session.commit()
         flash("添加成功","ok")
+        db.session.commit()
         return redirect(url_for("admin.tag_add"))
-
-
     return render_template("hdmin/tag_add.html",form=form)
 
 
 @admin.route('/tag/list/')
 @admin_login_req
 def tag_list():
-    return render_template("hdmin/tag_list.html")
+    tags = Tag.query.all()
+    return render_template("hdmin/tag_list.html",tags=tags)
+
+@admin.route('/tag/delete/<id>')
+@admin_login_req
+def tag_delete(id):
+    tag = Tag.query.filter_by(id=id).first()
+    print(tag)
+    if tag:
+        db.session.delete(tag)   # 删除标签
+        db.session.commit()
+        flash("删除成功")
+    return redirect(url_for("admin.tag_list"))
+
 
 
 @admin.route('/movie/add/')
