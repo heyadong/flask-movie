@@ -9,7 +9,7 @@ day1 2018-3-20：
 vue.js 结构：
 
 
- var = new Vue({
+    var = new Vue({
  
      delimiters:['${','}'],
      el: #app,
@@ -25,7 +25,7 @@ vue.js 结构：
               return null     
           },
          },       
- })
+     })
  
  
  delimiters: 更改转义字符 delimiters:['${','}'] Vue.js默认转义字符是{{ }},与jinja2的默认转义字符相同，
@@ -78,7 +78,7 @@ day4 2018-3-23
 
 完成了网站前后台管理页面的搭建
 
-day5 2018-2-36
+day5 2018-3-26
 <h3> 登陆的表单验证和密码验证</h3>
 
 1、在models的Admin模型下 定义密码验证的方法：
@@ -109,8 +109,13 @@ render_kw{} 表单其他信息css样式
 
      {% for error in form.account.errors %}
      {% endfor %}
-
+     
 2.flask消息的闪现，提示密码输入错误。前端使用for循环，
+  flash（）用法
+  
+  flask.flash(message，kindofmsg) 第二个参数表示消息的种类，
 
-    {% for message in get_flashed_messages() %}
+    {% for message in get_flashed_messages() %}
     {% endfor %}
+    
+day6 2018-3-27
