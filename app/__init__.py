@@ -8,9 +8,10 @@ app.config['SECRET_KEY'] = "hardguess"
 # URI的格式链接mysql: 驱动+链接数据库+：//用户名：密码@数据库地址
 # mysql 链接方式："pymysql+mysql://root：password@localhost:3306/flaskdev
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'datanihao.sqlite')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost:3306/my_db'# 配置数据库
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost:3306/my_db?charset=utf8'# 配置数据库
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['UP_DIR'] =os.path.join(os.path.abspath(os.path.dirname(__file__)),"static/uploads")
 db = SQLAlchemy(app)
 # db.create_all()  # 创建表
 # 蓝图注册

@@ -1,10 +1,11 @@
 # coding:utf-8
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired,ValidationError
-from app.models import Admin
+from wtforms import StringField, PasswordField, SubmitField,FileField,TextAreaField,SelectField
+from flask_wtf.file import FileRequired
+from wtforms.validators import DataRequired, ValidationError
+from app.models import Admin, Tag
 
-
+tags = Tag.query.all()
 class LoginForm(FlaskForm):
     account = StringField(
         label="账号",
@@ -56,3 +57,87 @@ class TagForm(FlaskForm):
         render_kw={"class":"btn btn-primary"}
     )
 
+
+# 电影添加表单
+class MovieForm(FlaskForm):
+    title = StringField(
+        label="片名",
+        validators=[DataRequired("请输入片名")],
+        description="movie's title",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入片名！"
+        }
+    )
+    url = FileField(
+        label="文件",
+        validators=[FileRequired("请上传文件")],
+        description="file",
+    )
+    info = TextAreaField(
+        label="简介",
+        validators=[DataRequired("请输入简介")],
+        description="infos",
+        render_kw={
+            "class": "form-control",
+            "rows": 10
+        }
+    )
+    pages = FileField(
+        label="封面",
+        validators=[DataRequired("请上传封面")],
+        description="file",
+    )
+    star = SelectField(
+        label="星级",
+        validators=[DataRequired("请选择星级")],
+        coerce=int,
+        choices=[(m,str(n)+"星") for m in range(1,6) for n in range(1,6) if m==n],
+        description="星级",
+        render_kw={
+            "class": "form-control"
+        }
+    )
+    tag_id = SelectField(
+        label="标签",
+        validators=[DataRequired("请选择星级")],
+        coerce=int,
+        choices=[(v.id, v.name) for v in tags],
+        description="标签",
+        render_kw={
+            "class": "form-control"
+        }
+    )
+    area = StringField(
+        label="地区",
+        validators=[DataRequired("请输入地区")],
+        description="area",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入地区！"
+        }
+    )
+    length = StringField(
+        label="片长",
+        validators=[DataRequired("请输入片长")],
+        description="length",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入片长！"
+        }
+    )
+    release_time = StringField(
+        label="上映时间",
+        validators=[DataRequired("请输入上映时间")],
+        description="release_time",
+        render_kw={
+            "class": "form-control",
+            "placeholder": "请输入上映时间"
+        }
+    )
+    add = SubmitField(
+        "添加",
+        render_kw={
+            "class": "btn btn-primary"
+        }
+    )

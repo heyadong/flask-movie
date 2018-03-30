@@ -1,5 +1,6 @@
 {% extends 'hdmin/base_admin.html' %}
 {% block content %}
+{% import "UI/paginate.html" as pn %}
 <section class="content-header">
             <h1>微电影管理系统</h1>
             <ol class="breadcrumb">
@@ -15,11 +16,11 @@
                             <h3 class="box-title">标签列表</h3>
                             <div class="box-tools">
                                 <div class="input-group input-group-sm" style="width: 150px;">
-                                    <input type="text" name="table_search" class="form-control pull-right"
-                                           placeholder="请输入关键字...">
+                                    <input id="se1" type="text" name="table_search" class="form-control pull-right"
+                                           placeholder="请输入关键字..." value="">
 
                                     <div class="input-group-btn">
-                                        <button type="submit" class="btn btn-default"><i class="fa fa-search"></i>
+                                        <button type="submit" class="btn btn-default" ><i class="fa fa-search" ></i>
                                         </button>
                                     </div>
                                 </div>
@@ -34,15 +35,15 @@
                                     <th>添加时间</th>
                                     <th>操作事项</th>
                                 </tr>
-                                {% for tag in tags %}
+                                {% for v in page_data.items %}
                                 <tr>
-                                    <td>{{ tag.id }}</td>
-                                    <td>{{ tag.name }}</td>
-                                    <td>{{ tag.add_time }}</td>
+                                    <td>{{ v.id }}</td>
+                                    <td>{{ v.name}}</td>
+                                    <td>{{ v.add_time }}</td>
                                     <td>
                                         <a class="label label-success">编辑</a>
                                         &nbsp;
-                                        <a onclick="show_confirm()" class="label label-danger" href="{{ url_for("admin.tag_delete",id=tag.id) }}">删除</a>
+                                        <a id="del1" onclick="show_confirm({{ v.id }})" class="label label-danger" >删除</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -50,15 +51,7 @@
                             </table>
                         </div>
                         <div class="box-footer clearfix">
-                            <ul class="pagination pagination-sm no-margin pull-right">
-                                <li><a href="#">首页</a></li>
-                                <li><a href="#">上一页</a></li>
-                                <li><a href="#">1</a></li>
-                                <li><a href="#">2</a></li>
-                                <li><a href="#">3</a></li>
-                                <li><a href="#">下一页</a></li>
-                                <li><a href="#">尾页</a></li>
-                            </ul>
+                           {{ pn.render_pagination(page_data, "admin.tag_list") }}
                         </div>
                     </div>
                 </div>
@@ -67,10 +60,16 @@
 {% endblock %}
 {% block js %}
     <script>
-        function show_confirm() {
+        function show_confirm(tag_id) {
             var result = confirm("是否删除")
-            if(result) alert('删除成功')
-            else {return false}
+            if(result) {
+                document.getElementById('del1').href ="/admin/tag/delete/"+tag_id
+                alert('删除成功')
+            }
+        }
+        function search1() {
+            var val= document.getElementById("se1").value
+
         }
 
     </script>
