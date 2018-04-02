@@ -49,7 +49,7 @@ class Userlog(db.Model):
 # 标签数据模型
 class Tag(db.Model):
     __tablename__ = "tag"
-    __table_args__ = {"useexisting": True}
+    # __table_args__ = {"useexisting": True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
     add_time = db.Column(db.DateTime, default=datetime.now())
@@ -185,6 +185,5 @@ class Oplog(db.Model):
 
     def __repr__(self):
         return "<Oplog %r>" % self.id
-
 
 

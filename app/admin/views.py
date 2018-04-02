@@ -131,7 +131,7 @@ def movie_add():
             os.chmod(app.config["UP_DIR"], "rw")
         url = change_file(file_url)
         page = change_file(file_log)
-        print(url,page)
+        print(url, page)
         # 保存文件到目录
         movie_form.url.data.save(app.config["UP_DIR"]+url)
         movie_form.pages.data.save(app.config["UP_DIR"]+page)
@@ -150,16 +150,29 @@ def movie_add():
         )
         db.session.add(movie)
         db.session.commit()
-        flash("添加电影成功")
-        return redirect("admin.movie_add")
+        flash("添加电影成功","ok")
+        return redirect(url_for("admin.movie_add"))
     return render_template("hdmin/movie_add.html",form=movie_form)
 
-
-@admin.route('/movie/list/')
+# 电影列表
+@admin.route('/movie/list/<int:page>')
 @admin_login_req
-def movie_list():
-    return render_template("hdmin/movie_list.html")
+def movie_list(page=None):
+    if page is None:
+        page=1
+    movies = Movie.query.order_by(Movie.add_time.desc())
+    movie_data = movies.paginate(page=page, per_page=2)
+    return render_template("hdmin/movie_list.html",movie_data=movie_data)
 
+# 电影删除
+@admin.route('/movie/del/<int:id>')
+@admin_login_req
+def movie_del(id):
+    movie = Movie.query.filter_by(id=id).first_or_404()
+    db.session.delete(movie)
+    db.session.commit()
+    flash("删除电影成功")
+    return redirect(url_for("admin.movie_list", page=1))
 
 @admin.route('/preview/add/')
 @admin_login_req

@@ -1,6 +1,6 @@
 # coding:utf-8
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField,FileField,TextAreaField,SelectField
+from wtforms import StringField, PasswordField, SubmitField,FileField,TextAreaField,SelectField,DateField
 from flask_wtf.file import FileRequired
 from wtforms.validators import DataRequired, ValidationError
 from app.models import Admin, Tag
@@ -92,7 +92,7 @@ class MovieForm(FlaskForm):
         label="星级",
         validators=[DataRequired("请选择星级")],
         coerce=int,
-        choices=[(m,str(n)+"星") for m in range(1,6) for n in range(1,6) if m==n],
+        choices=[(m,str(n)+"星") for m in range(1, 6) for n in range(1, 6) if m==n],
         description="星级",
         render_kw={
             "class": "form-control"
@@ -129,10 +129,12 @@ class MovieForm(FlaskForm):
     release_time = StringField(
         label="上映时间",
         validators=[DataRequired("请输入上映时间")],
+
         description="release_time",
         render_kw={
             "class": "form-control",
-            "placeholder": "请输入上映时间"
+            "placeholder": "请输入上映时间",
+            "id": "input_release_time"
         }
     )
     add = SubmitField(
