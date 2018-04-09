@@ -1,7 +1,7 @@
 from flask import render_template, url_for, redirect, flash, request, session
 from . import admin
-from .forms import LoginForm, TagForm,MovieForm
-from app.models import Admin, Tag,Movie
+from .forms import LoginForm, TagForm,MovieForm,PreviewForm
+from app.models import Admin, Tag,Movie,Preview
 from app import db,app
 from werkzeug.security import generate_password_hash
 from functools import wraps
@@ -88,11 +88,12 @@ def tag_add():
 @admin.route('/tag/list/<int:page>', methods=["GET"])
 @admin_login_req
 def tag_list(page=None):
+    name = request.form.get("table_search") or None
     if page is None:
         page = 1
     tags = Tag.query.order_by(Tag.add_time.desc())  # 查询tags并按照添加时间降序排序
     page_data = tags.paginate(page=page, per_page=2)    # paginate 对进行分页page 参数表示页数，per_page 每页显示数量
-    return render_template("hdmin/tag_list.html", page_data=page_data)
+    return render_template("hdmin/tag_list.html", page_data=page_data,name=name)
 
 # 标签删除
 @admin.route('/tag/delete/<id>')
@@ -155,7 +156,7 @@ def movie_add():
     return render_template("hdmin/movie_add.html",form=movie_form)
 
 # 电影列表
-@admin.route('/movie/list/<int:page>')
+@admin.route('/movie/list/<int:page>',methods=["GET"])
 @admin_login_req
 def movie_list(page=None):
     if page is None:
@@ -171,19 +172,92 @@ def movie_del(id):
     movie = Movie.query.filter_by(id=id).first_or_404()
     db.session.delete(movie)
     db.session.commit()
-    flash("删除电影成功")
+    flash("删除电影成功",'ok')
     return redirect(url_for("admin.movie_list", page=1))
 
-@admin.route('/preview/add/')
+# 电影修改
+@admin.route('/movie/edit/<int:id>',methods=["GET","POST"])
+@admin_login_req
+def movie_edit(id):
+    movie_form = MovieForm()
+    movies = Movie.query.all()
+    movie = Movie.query.filter_by(id=id).first_or_404()
+    if movie_form.validate_on_submit():
+        movie_data = movie_form.data
+        if movie_data['title'] in movies.title:
+            flash("电影已存在", 'error')
+        file_url = secure_filename(movie_form.url.data.filename)  # 使用安全文件名称secure_filename()
+        file_log = secure_filename(movie_form.pages.data.filename)
+        url = change_file(file_url)
+        page = change_file(file_log)
+        # 保存文件到目录
+        movie_form.url.data.save(app.config["UP_DIR"]+url)
+        movie_form.pages.data.save(app.config["UP_DIR"]+page)
+        movie = Movie(
+            title=movie_data['title'],
+            url=url,
+            info=movie_data["info"],
+            logo=page,
+            star=int(movie_data['star']),
+            palynum=0,
+            commentnum=0,
+            tag_id=int(movie_data['tag_id']),
+            area=movie_data['area'],
+            relase_time=movie_data['release_time'],
+            lenth=movie_data['length']
+        )
+        db.session.add(movie)
+        db.session.commit()
+        flash("修改电影成功", "ok")
+        return redirect(url_for("admin.movie_edit",id=None))
+    return render_template("hdmin/movie_edit.html",
+                           form=movie_form,
+                           movie=movie,
+                           v_url=movie.url,
+                           v_star=movie.star,
+                           v_logo=movie.logo)
+
+# 电影查询
+@admin.route('/movie/search/<int:page>',methods=["GET"])
+@admin_login_req
+def movie_search(page=None):
+    if request.method == "GET":
+        q = request.args.get('table_search')
+        session['result'] = q
+    if page is None:
+        page=1
+    movie = Movie.query.filter(Movie.title.ilike("%"+session.get('result')+"%")).order_by(Movie.add_time.desc())
+    movie_data = movie.paginate(page=page,per_page=1)
+    return render_template('hdmin/movie_query.html', movie_data=movie_data, name=session["result"])
+
+@admin.route('/preview/add/',methods=["GET","POST"])
 @admin_login_req
 def preview_add():
-    return render_template("hdmin/preview_add.html")
+    preview_form = PreviewForm()
+    if preview_form.validate_on_submit():
+        preview_data = preview_form.data
+        # <form role="form" method="post" enctype="multipart/form-data">
+        # 要使用form.logo.data.filename/form.logo.data.save方法
+        # 需要在form标签 enctype="multipart/form-data"
+        logo = secure_filename(preview_form.logo.data.filename)  # 获取FileFiled表单文件名称,form.logo.data.filenamme
+        logos = change_file(logo)
+        preview_form.logo.data.save(app.config["UP_DIR"]+logos)
+        preview = Preview(title=preview_data['title'],logo=logos)
+        db.session.add(preview)
+        db.session.commit()
+        flash("添加预告成功",'ok')
+        return redirect(url_for('admin.preview_add'))
+    return render_template("hdmin/preview_add.html", form=preview_form)
 
 
 @admin.route('/preview/list/')
 @admin_login_req
 def preview_list():
-    return render_template("hdmin/preview_list.html")
+    previews = Preview.query.order_by(Preview.add_time.desc())
+    content = {
+        'previews': previews
+    }
+    return render_template("hdmin/preview_list.html", **content)
 
 
 @admin.route('/user/list/')
