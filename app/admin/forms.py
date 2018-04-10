@@ -147,6 +147,7 @@ class MovieForm(FlaskForm):
     )
 
 
+# 预告表单
 class PreviewForm(FlaskForm):
     title = StringField(
         label="预告标题",

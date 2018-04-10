@@ -105,7 +105,7 @@ def tag_delete(id):
         db.session.delete(tag)  # 删除标签
         db.session.commit()
         flash("删除成功")
-    return redirect(url_for("admin.tag_list"))
+    return redirect(url_for("admin.tag_list",page=None))
 
 # 查询标签
 @admin.route('/tag/query/<name>')
@@ -125,12 +125,14 @@ def movie_add():
     if movie_form.validate_on_submit():
         movie_data = movie_form.data
         file_url = secure_filename(movie_form.url.data.filename)  # 使用安全文件名称secure_filename()
+        print(file_url)
         file_log = secure_filename(movie_form.pages.data.filename)
         # 判断是否存在保存文件的目录，不存在就创建，并授权读写
         if not os.path.exists(app.config['UP_DIR']):
             os.makedirs(app.config["UP_DIR"])
             os.chmod(app.config["UP_DIR"], "rw")
         url = change_file(file_url)
+        print(url)
         page = change_file(file_log)
         print(url, page)
         # 保存文件到目录
@@ -155,6 +157,7 @@ def movie_add():
         return redirect(url_for("admin.movie_add"))
     return render_template("hdmin/movie_add.html",form=movie_form)
 
+
 # 电影列表
 @admin.route('/movie/list/<int:page>',methods=["GET"])
 @admin_login_req
@@ -165,6 +168,7 @@ def movie_list(page=None):
     movie_data = movies.paginate(page=page, per_page=2)
     return render_template("hdmin/movie_list.html",movie_data=movie_data)
 
+
 # 电影删除
 @admin.route('/movie/del/<int:id>')
 @admin_login_req
@@ -174,6 +178,7 @@ def movie_del(id):
     db.session.commit()
     flash("删除电影成功",'ok')
     return redirect(url_for("admin.movie_list", page=1))
+
 
 # 电影修改
 @admin.route('/movie/edit/<int:id>',methods=["GET","POST"])
@@ -224,13 +229,14 @@ def movie_search(page=None):
     if request.method == "GET":
         q = request.args.get('table_search')
         session['result'] = q
+        movie = Movie.query.filter(Movie.title.ilike("%" + session.get('result') + "%")).order_by(Movie.add_time.desc())
     if page is None:
-        page=1
-    movie = Movie.query.filter(Movie.title.ilike("%"+session.get('result')+"%")).order_by(Movie.add_time.desc())
+        page = 1
     movie_data = movie.paginate(page=page,per_page=1)
     return render_template('hdmin/movie_query.html', movie_data=movie_data, name=session["result"])
 
-@admin.route('/preview/add/',methods=["GET","POST"])
+
+@admin.route('/preview/add/', methods=["GET", "POST"])
 @admin_login_req
 def preview_add():
     preview_form = PreviewForm()
@@ -241,23 +247,65 @@ def preview_add():
         # 需要在form标签 enctype="multipart/form-data"
         logo = secure_filename(preview_form.logo.data.filename)  # 获取FileFiled表单文件名称,form.logo.data.filenamme
         logos = change_file(logo)
+        if not os.path.exists(app.config["UP_DIR"]):
+            os.makedirs(app.config['UP_DIR'])
+            os.chmod(app.config['UP_DIR'],'rw')
         preview_form.logo.data.save(app.config["UP_DIR"]+logos)
         preview = Preview(title=preview_data['title'],logo=logos)
         db.session.add(preview)
         db.session.commit()
-        flash("添加预告成功",'ok')
+        flash("添加预告成功", 'ok')
         return redirect(url_for('admin.preview_add'))
     return render_template("hdmin/preview_add.html", form=preview_form)
 
 
-@admin.route('/preview/list/')
+@admin.route('/preview/list/<int:page>')
 @admin_login_req
-def preview_list():
-    previews = Preview.query.order_by(Preview.add_time.desc())
+def preview_list(page=None):
+    if page is None:
+        page = 1
+    previews = Preview.query.order_by(Preview.add_time.desc()).paginate(
+        page=page,
+        per_page=1
+    )
     content = {
         'previews': previews
     }
     return render_template("hdmin/preview_list.html", **content)
+
+
+# 预告删除
+@admin.route('/preview/delete/<int:id>')
+@admin_login_req
+def preview_delete(id):
+    preview = Preview.query.filter_by(id=id).first_or_404()
+    db.session.delete(preview)
+    db.session.commit()
+    flash("删除成预告功",'ok')
+    return redirect(url_for('admin.preview_list'))
+
+
+@admin.route('/preview/edit/<int:id>',methods=["GET","POST"])
+@admin_login_req
+def preview_edit(id):
+    preview_form = PreviewForm()
+    preview = Preview.query.filter_by(id=id).first_or_404()
+    preview_form.logo.validators=[]
+    if request.method == "GET":
+        preview_form.title.data = preview.title
+    if preview_form.validate_on_submit():
+        preview_data = preview_form.data
+        if not preview_form.logo.data.filename == '':
+            logo = secure_filename(preview_form.logo.data.filename)  # 获取FileFiled表单文件名称,form.logo.data.filenamme
+            logos = change_file(logo)
+            preview.logo = logos
+            preview_form.logo.data.save(app.config["UP_DIR"]+logos)
+        preview.title = preview_data['title']
+        db.session.add(preview)
+        db.session.commit()
+        flash("修改预告成功", 'ok')
+        return redirect(url_for('admin.preview_edit', id=id))
+    return render_template("hdmin/preview_edit.html", form=preview_form,data=preview)
 
 
 @admin.route('/user/list/')
