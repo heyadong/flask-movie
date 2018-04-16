@@ -90,6 +90,8 @@ generate_password_hash()生成密码的hash值字符串
 check_password_hash(a,b) 比较两个值的hash值是否相同，返回True,False
 
 使用flask_wtf 定义表单。
+
+
  
     from flask_wtf inmport FlaskForm
     from wtforms import StringField, SubmitField, PasswordField
@@ -98,6 +100,8 @@ check_password_hash(a,b) 比较两个值的hash值是否相同，返回True,Fals
     class LoginForm(FlaskForm):
       account = StringField()
       password = PasswordField()
+      
+      
       
 StringFeild()都可以传入关键字参数 :
 
@@ -118,12 +122,13 @@ render_kw{} 表单其他信息css样式
   flask.flash(message，kindofmsg) 第二个参数表示消息的种类，
 
 
-
+    {{
     {% for message in get_flashed_messages(category_filter['ok']) %}
     {{ message}}
     {% endfor %}
-    
-    
+    }}
+    
+    
   
     
 day6 2018-3-27
@@ -132,13 +137,19 @@ Flask_SQLAlchemy 使用ORM的增删改查：
 
 
     # 增加
+    
+    
     movie = Movie(id=id,title=title)
     db.session.add(movie)
     db.session.commit()
     
     ''' Insert into movie(id, title) values(id,title) '''
     
+    
+    
     # 删除
+    
+    
     movie= Movie.query.filter_by(id=moive_id).first()
     db.session.delete()
     db.session.commit()
@@ -147,18 +158,30 @@ Flask_SQLAlchemy 使用ORM的增删改查：
     #修改
     
     # 查询
+    
+    
     movie.query.filter_by(id=movie_id).first()
     # 模糊查询
+    
+    
     movie.query.filter(Movie.title.ilile("%name%").order_by().all()
     ''' select * from movie where title like '%name%' '''
-    # 查询列
-    movie.query.with_entities(movie.title).all() 
+    
+    
+    # 查询列
+   
+    movie.query.with_entities(movie.title).all() 
+    
     返回的是tuple
     
     
  <h3>使用sqlalchemy分页</h3>  
 day7 2018-4-11
+
+
 User.query.oreder_by(user.add_time()).paginate(page=1,)
+
+
 Jinja2 支持宏
 
 
