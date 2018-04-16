@@ -3,7 +3,18 @@ from flask import render_template,url_for,request,redirect,session
 from . import blog
 from app.models import User
 from app import db
-from .forms import Userlogin_form
+from .forms import Userlogin_form,User_Regist
+from werkzeug.security import generate_password_hash
+from functools import wraps
+
+def login_req(func):
+    @wraps(func)
+    def wrap(*args,**kwargs):
+        if session.get('user'):
+            return func(*args,**kwargs)
+        return redirect(url_for('blog.login'))
+    return wrap
+
 
 @blog.route("/", methods=["GET", "POST"])
 def index():
@@ -32,6 +43,21 @@ def login():
             session['user'] = user.uuid
             return redirect(url_for("blog.index1"))
     return render_template('home/login.html', form=form)
+
+# 注册
+@blog.route('/register/',methods=['GET','POST'])
+def register():
+    form = User_Regist()
+    if form.validate_on_submit():
+        data = form.data
+        user = User(name=data['name'],
+                    password=generate_password_hash(data['password']),
+                    phone=data['phone'],
+                    )
+        db.session.add(user)
+        db.session.commit()
+        return render_template('home/success_regist.html')
+    return render_template('home/register.html',form=form)
 
 
 # 登出
@@ -69,12 +95,6 @@ def comment():
 @blog.route('/moviecol/')
 def moviecol():
     return render_template('home/moviecol.html')
-
-
-# 注册
-@blog.route('/register/')
-def register():
-    return render_template('home/register.html')
 
 
 # 登陆日志

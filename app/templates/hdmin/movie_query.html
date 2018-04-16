@@ -1,6 +1,6 @@
 {% extends "hdmin/base_admin.html" %}
 {% block content %}
-{% import "UI/paginate.html" as pg %}
+{% import "UI/search_paginate.html" as pg %}
 <!--内容-->
         <section class="content-header">
             <h1>微电影管理系统</h1>
@@ -73,7 +73,7 @@
                             </table>
                         </div>
                         <div class="box-footer clearfix">
-                            {{ pg.render_pagination(movie_data,"admin.movie_search")}}
+                            {{ pg.render_pagination(movie_data,"admin.movie_search",q=name)}}
 {#                            <ul class="pagination pagination-sm no-margin pull-right">#}
 {#                                <li><a href="#">首页</a></li>#}
 {#                                <li><a href="#">上一页</a></li>#}

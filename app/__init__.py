@@ -13,6 +13,7 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['UP_DIR'] = os.path.join(os.path.abspath(os.path.dirname(__file__)),"static/uploads/")
 db = SQLAlchemy(app)
+
 # db.create_all()  # 创建表
 # 蓝图注册
 from app.blog import blog as blog_blueprint
@@ -24,7 +25,6 @@ app.register_blueprint(admin_blueprint,url_prefix="/admin")
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('home/404.html')
-
 
 # import os
 # import pymysql

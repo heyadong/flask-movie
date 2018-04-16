@@ -1,11 +1,12 @@
 {% extends "hdmin/base_admin.html" %}
 {% block content %}
-{% import 'UI/paginate.html' as pg %}
-    <section class="content-header">
+{% import 'UI/search_paginate.html' as pg %}
+<!--内容-->
+        <section class="content-header">
             <h1>微电影管理系统</h1>
             <ol class="breadcrumb">
-                <li><a href="#"><i class="fa fa-dashboard"></i> 会员管理</a></li>
-                <li class="active">会员列表</li>
+                <li><a href="#"><i class="fa fa-dashboard"></i> 预告管理</a></li>
+                <li class="active">预告列表</li>
             </ol>
         </section>
         <section class="content" id="showcontent">
@@ -13,8 +14,9 @@
                 <div class="col-md-12">
                     <div class="box box-primary">
                         <div class="box-header">
-                            <h3 class="box-title">会员列表</h3>
+                            <h3 class="box-title">预告列表</h3>
                             <div class="box-tools">
+                                <form method="get" action="{{ url_for('admin.preview_search',page=1) }}">
                                 <div class="input-group input-group-sm" style="width: 150px;">
                                     <input type="text" name="table_search" class="form-control pull-right"
                                            placeholder="请输入关键字...">
@@ -24,6 +26,7 @@
                                         </button>
                                     </div>
                                 </div>
+                                </form>
                             </div>
                         </div>
                         <div class="box-body table-responsive no-padding">
@@ -31,33 +34,23 @@
                                 <tbody>
                                 <tr>
                                     <th>编号</th>
-                                    <th>昵称</th>
-                                    <th>邮箱</th>
-                                    <th>手机</th>
-                                    <th>头像</th>
-                                    <th>状态</th>
-                                    <th>注册时间</th>
+                                    <th>预告标题</th>
+                                    <th>预告封面</th>
+                                    <th>添加时间</th>
                                     <th>操作事项</th>
                                 </tr>
-                                {%  for v in data.items %}
+                                {%  for preview in previews.items %}
                                 <tr>
-                                    <td>{{ v.id }}</td>
-                                    <td>{{ v.name }}</td>
-                                    <td>1780316635@qq.com</td>
-                                    <td>{{ v.phone }}</td>
+                                    <td>{{ preview.id }}</td>
+                                    <td>{{ preview.title }}</td>
                                     <td>
-                                        <img data-src="holder.js/50x50" class="img-responsive center-block" alt="">
+                                        <img src="{{ url_for('static',filename='uploads/'+preview.logo) }}" style="width: 140px" class="img-responsive center-block" alt="">
                                     </td>
-                                    <td>正常/冻结</td>
-                                    <td>{{ v.add_time }}</td>
+                                    <td>{{ preview.add_time }}</td>
                                     <td>
-                                        <a class="label label-success" href="{{ url_for("admin.user_view") }}">查看</a>
+                                        <a href="{{ url_for("admin.preview_edit",id=preview.id) }}" class="label label-success">编辑</a>
                                         &nbsp;
-                                      <!--  <a class="label label-info">解冻</a>
-                                        &nbsp;
-                                        <a class="label label-warning">冻结</a>
-                                        &nbsp; -->
-                                        <a class="label label-danger">删除</a>
+                                        <a href="{{ url_for('admin.preview_delete',id=preview.id) }}" class="label label-danger">删除</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -65,9 +58,7 @@
                             </table>
                         </div>
                         <div class="box-footer clearfix">
-                            {{ pg.render_pagination(data,'admin.user_list') }}
-
-                           <!-- <ul class="pagination pagination-sm no-margin pull-right">
+                          <!--  <ul class="pagination pagination-sm no-margin pull-right">
                                 <li><a href="#">首页</a></li>
                                 <li><a href="#">上一页</a></li>
                                 <li><a href="#">1</a></li>
@@ -75,7 +66,8 @@
                                 <li><a href="#">3</a></li>
                                 <li><a href="#">下一页</a></li>
                                 <li><a href="#">尾页</a></li>
-                            </ul> -->
+                            </ul>-->
+                            {{ pg.render_pagination(previews,'admin.preview_search',q) }}
                         </div>
                     </div>
                 </div>

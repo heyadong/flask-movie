@@ -16,6 +16,7 @@
                         <div class="box-header">
                             <h3 class="box-title">预告列表</h3>
                             <div class="box-tools">
+                                <form method="get" action="{{ url_for('admin.preview_search',page=1)}}">
                                 <div class="input-group input-group-sm" style="width: 150px;">
                                     <input type="text" name="table_search" class="form-control pull-right"
                                            placeholder="请输入关键字...">
@@ -25,9 +26,17 @@
                                         </button>
                                     </div>
                                 </div>
+                                </form>
                             </div>
                         </div>
                         <div class="box-body table-responsive no-padding">
+                        {% for msg in get_flashed_messages(category_filter=["ok"]) %}
+                                <div class="alert alert-info alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                    <h4><i class="icon fa fa-info"></i> 添加成功</h4>
+                                          {{ msg }}
+                                </div>
+                        {% endfor %}
                             <table class="table table-hover">
                                 <tbody>
                                 <tr>

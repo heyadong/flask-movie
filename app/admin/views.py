@@ -1,7 +1,7 @@
 from flask import render_template, url_for, redirect, flash, request, session
 from . import admin
 from .forms import LoginForm, TagForm,MovieForm,PreviewForm
-from app.models import Admin, Tag,Movie,Preview
+from app.models import Admin,Tag,Movie,Preview,User
 from app import db,app
 from werkzeug.security import generate_password_hash
 from functools import wraps
@@ -185,36 +185,34 @@ def movie_del(id):
 @admin_login_req
 def movie_edit(id):
     movie_form = MovieForm()
-    movies = Movie.query.all()
+    movies = Movie.query.with_entities(Movie.title).all() # 查询所有标题返回结果是一个tuple()
     movie = Movie.query.filter_by(id=id).first_or_404()
+    movie_form.url.validators = []  # 取消为空的验证
+    movie_form.pages.validators = []
+    if request.method == "GET":
+        movie_form.star.data = movie.star
+        movie_form.info.data = movie.info
     if movie_form.validate_on_submit():
         movie_data = movie_form.data
-        if movie_data['title'] in movies.title:
+        if (movie_data['title'],) in movies:
             flash("电影已存在", 'error')
-        file_url = secure_filename(movie_form.url.data.filename)  # 使用安全文件名称secure_filename()
-        file_log = secure_filename(movie_form.pages.data.filename)
-        url = change_file(file_url)
-        page = change_file(file_log)
-        # 保存文件到目录
-        movie_form.url.data.save(app.config["UP_DIR"]+url)
-        movie_form.pages.data.save(app.config["UP_DIR"]+page)
-        movie = Movie(
-            title=movie_data['title'],
-            url=url,
-            info=movie_data["info"],
-            logo=page,
-            star=int(movie_data['star']),
-            palynum=0,
-            commentnum=0,
-            tag_id=int(movie_data['tag_id']),
-            area=movie_data['area'],
-            relase_time=movie_data['release_time'],
-            lenth=movie_data['length']
-        )
+        movie.title = movie_data['title']
+        if movie_form.url.data.filename != '':
+            file_url = secure_filename(movie_form.url.data.filename)
+            movie.url = change_file(file_url)
+            movie_form.url.data.save(app['UP_DIR']+movie.url)
+        if movie_form.pages.data.filename != '':
+            file_logo = secure_filename(movie_form.pages.data.filename)
+            movie.logo = change_file(file_logo)
+            movie_form.pages.data.save(app["UP_DIR"]+movie.logo)
+        movie.info = movie_data['info']
+        movie.lenth = movie_data['length']
+        movie.relase_time = movie_data['release_time']
+        movie.star = movie_data['star']
         db.session.add(movie)
         db.session.commit()
         flash("修改电影成功", "ok")
-        return redirect(url_for("admin.movie_edit",id=None))
+        return redirect(url_for("admin.movie_edit",id=id))
     return render_template("hdmin/movie_edit.html",
                            form=movie_form,
                            movie=movie,
@@ -228,12 +226,11 @@ def movie_edit(id):
 def movie_search(page=None):
     if request.method == "GET":
         q = request.args.get('table_search')
-        session['result'] = q
-        movie = Movie.query.filter(Movie.title.ilike("%" + session.get('result') + "%")).order_by(Movie.add_time.desc())
+        movie = Movie.query.filter(Movie.title.ilike("%" + q + "%")).order_by(Movie.add_time.desc())
     if page is None:
         page = 1
     movie_data = movie.paginate(page=page,per_page=1)
-    return render_template('hdmin/movie_query.html', movie_data=movie_data, name=session["result"])
+    return render_template('hdmin/movie_query.html', movie_data=movie_data, name=q)
 
 
 @admin.route('/preview/add/', methods=["GET", "POST"])
@@ -249,7 +246,7 @@ def preview_add():
         logos = change_file(logo)
         if not os.path.exists(app.config["UP_DIR"]):
             os.makedirs(app.config['UP_DIR'])
-            os.chmod(app.config['UP_DIR'],'rw')
+            os.chmod(app.config['UP_DIR'], 'rw')
         preview_form.logo.data.save(app.config["UP_DIR"]+logos)
         preview = Preview(title=preview_data['title'],logo=logos)
         db.session.add(preview)
@@ -258,7 +255,7 @@ def preview_add():
         return redirect(url_for('admin.preview_add'))
     return render_template("hdmin/preview_add.html", form=preview_form)
 
-
+# 预告列表
 @admin.route('/preview/list/<int:page>')
 @admin_login_req
 def preview_list(page=None):
@@ -274,6 +271,23 @@ def preview_list(page=None):
     return render_template("hdmin/preview_list.html", **content)
 
 
+# 预告查询
+@admin.route('/preview/search/<int:page>',methods=["GET"])
+@admin_login_req
+def preview_search(page=None):
+    if page is None:
+        page = 1
+    if request.method == 'GET':
+        q = request.args.get('table_search')
+        preview_data = Preview.query.filter(Preview.title.ilike('%{}%'.format(q))).order_by(
+                       Preview.add_time.desc()
+                       ).paginate(
+            page=page,
+            per_page=1
+        )
+        return render_template('hdmin/preview_search.html',previews=preview_data,q=q)
+
+
 # 预告删除
 @admin.route('/preview/delete/<int:id>')
 @admin_login_req
@@ -281,10 +295,11 @@ def preview_delete(id):
     preview = Preview.query.filter_by(id=id).first_or_404()
     db.session.delete(preview)
     db.session.commit()
-    flash("删除成预告功",'ok')
-    return redirect(url_for('admin.preview_list'))
+    flash("删除预告成功",'ok')
+    return redirect(url_for('admin.preview_list',page=1))
 
 
+# 预告编辑
 @admin.route('/preview/edit/<int:id>',methods=["GET","POST"])
 @admin_login_req
 def preview_edit(id):
@@ -308,10 +323,17 @@ def preview_edit(id):
     return render_template("hdmin/preview_edit.html", form=preview_form,data=preview)
 
 
-@admin.route('/user/list/')
+# 用户列表
+@admin.route('/user/list/<int:page>')
 @admin_login_req
-def user_list():
-    return render_template("hdmin/user_list.html")
+def user_list(page=None):
+    if page is None:
+        page = 1
+    user_data = User.query.order_by(User.id.asc()).paginate(
+        page=page,
+        per_page=3
+    )
+    return render_template("hdmin/user_list.html",data=user_data)
 
 
 @admin.route('/user/view/')
