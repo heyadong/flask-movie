@@ -125,8 +125,7 @@ render_kw{} 表单其他信息css样式
     {{
     {% for message in get_flashed_messages(category_filter['ok']) %}
     {{ message}}
-    {% endfor %}
-    }}
+    {% endfor %} }}
     
     
   
@@ -136,18 +135,18 @@ Flask_SQLAlchemy 使用ORM的增删改查：
 
 
 
-    # 增加
+# 增加
     
     
     movie = Movie(id=id,title=title)
     db.session.add(movie)
     db.session.commit()
     
+    
     ''' Insert into movie(id, title) values(id,title) '''
     
     
-    
-    # 删除
+ # 删除
     
     
     movie= Movie.query.filter_by(id=moive_id).first()
@@ -155,20 +154,21 @@ Flask_SQLAlchemy 使用ORM的增删改查：
     db.session.commit()
     ''' delete from movie where id=movie_id '''
     
-    #修改
+# 修改
     
-    # 查询
+# 查询
     
     
     movie.query.filter_by(id=movie_id).first()
-    # 模糊查询
+    
+# 模糊查询
     
     
     movie.query.filter(Movie.title.ilile("%name%").order_by().all()
     ''' select * from movie where title like '%name%' '''
     
     
-    # 查询列
+# 查询列
    
     movie.query.with_entities(movie.title).all() 
     
