@@ -30,7 +30,6 @@ def change_file(filename):
 
 
 @admin.route('/', methods=["GET", "POST"])
-@admin_login_req
 def index():
     return render_template("hdmin/index.html")
 

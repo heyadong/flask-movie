@@ -1,17 +1,19 @@
 # coding:utf-8
-from flask import render_template,url_for,request,redirect,session
+from flask import flash, render_template,url_for,request,redirect,session
 from . import blog
 from app.models import User
 from app import db
-from .forms import Userlogin_form,User_Regist
+from .forms import Userlogin_form,User_Regist,UserInfo
 from werkzeug.security import generate_password_hash
 from functools import wraps
 
+
 def login_req(func):
     @wraps(func)
-    def wrap(*args,**kwargs):
+    def wrap(*args, **kwargs):
         if session.get('user'):
-            return func(*args,**kwargs)
+            print(session.get('user'))
+            return func(*args, **kwargs)
         return redirect(url_for('blog.login'))
     return wrap
 
@@ -40,7 +42,8 @@ def login():
         data = form.data
         user = User.query.filter_by(name=data["username"]).first()
         if user.check_pw(data['password']):
-            session['user'] = user.uuid
+            session['user'] = user.id
+            print(session.get('user'))
             return redirect(url_for("blog.index1"))
     return render_template('home/login.html', form=form)
 
@@ -64,20 +67,41 @@ def register():
 @blog.route('/logout/')
 def logout():
     # redirect()重定向到登陆页面
+    del session['user']
+    print(session.get('user'))
     return redirect(url_for("blog.login"))
 
 
 # 更改密码
+
 @blog.route('/password/')
+@login_req
 def password():
     return render_template('home/password.html')
 
 
 # 用户中心页面
-@blog.route('/user/')
+@blog.route('/user/',methods=["GET","POST"])
+@login_req
 def user():
-    return render_template('home/user.html')
-
+    form = UserInfo()
+    form.face_photo.validators=[]
+    form.email.validators=[]
+    users = User.query.filter_by(id=session['user']).first()
+    if request.method == 'GET':
+        form.name.data = users.name
+        form.info.data = users.info
+        form.phone.data = users.phone
+    if form.validate_on_submit():
+        data = form.data
+        users.name = data['name']
+        users.info = data['info']
+        users.phone = data['phone']
+        db.session.add(users)
+        db.session.commit()
+        flash('修改成功')
+        return redirect(url_for('blog.user'))
+    return render_template('home/user.html',form=form)
 
 # 首页
 @blog.route('/index/')

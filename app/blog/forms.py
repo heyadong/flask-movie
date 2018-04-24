@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SubmitField, StringField, PasswordField, ValidationError
+from wtforms import SubmitField, StringField, PasswordField, ValidationError,FileField,TextAreaField
 from wtforms.validators import DataRequired,Email,Length
 from app.models import User
 
@@ -20,7 +20,7 @@ class Userlogin_form(FlaskForm):
         render_kw={"class": "btn btn-lg btn-success btn-block"}
     )
 
-    def validator_user(self, field):
+    def validate_username(self, field):
         username = field.data
         user = User.query.filter_by(name=username).count()
         if user == 0:
@@ -93,10 +93,68 @@ class User_Regist(FlaskForm):
     def validate_phone(self,field):
         #  手机号重复验证
         phone = field.data
-        print(phone)
         user = User.query.filter_by(phone=phone).count()
         if user != 0:
             raise ValidationError('手机号已被注册，请更改')
 
+    def validate_name(self,filed):
+        '''用户名重复验证'''
+        user = User.query.filter_by(name=filed.data).count()
+        if user != 0:
+            raise ValidationError('用户名已注册')
 
+class UserInfo(FlaskForm):
+    name = StringField(
+        label='昵称',
+        validators=[DataRequired('请输入昵称')],
+        description='name',
+        render_kw={
+            'class':'form-control',
+            'placeholder' :"昵称",
+            }
+    )
+    email = StringField(
+        label="邮箱",
+        validators=[Email('请输入正确的邮箱地址')],
+        description="email",
+        render_kw={
+            'class':'form-control',
+            'placeholder':'邮箱',
+            'type':'email'
+        }
+    )
+    phone = StringField(
+        label='手机',
+        validators=[DataRequired('请输入昵称')],
+        description='name',
+        render_kw={
+            'class':'form-control',
+            'placeholder' :"手机",
+            }
+    )
+    face_photo = FileField(
+        label='头像',
+        validators=[DataRequired("请选择头像")],
+        render_kw={
+            'class':'form-control  glyphicon glyphicon-open',
+            'style':'margin-top:6px',
+        }
+    )
+    info = TextAreaField(
+        label="简介",
+        validators=[DataRequired('请输入简介')],
+        description="simple_info",
+        render_kw={
+            'class': 'form-control',
+            'rows': "10",
+            'id': "input_info"
+        }
 
+    )
+    submit = SubmitField(
+        '保存修改',
+        render_kw={
+            'class': "btn btn-success glyphicon glyphicon-saved",
+            'style':"margin-top:6px"
+        }
+    )
