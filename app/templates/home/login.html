@@ -26,6 +26,9 @@
                             {% for error in form.password.errors %}
                             <div class="col-md-12" id="error_password" style="color: red">{{ error }}</div>
                             {% endfor %}
+                            {% for error in get_flashed_messages(category_filter=['error']) %}
+                            <div class="col-md-12" id="error_password" style="color: red">{{ error }}</div>
+                            {% endfor %}
 {#                            <a href="user.html" class="btn btn-lg btn-success btn-block">登录</a>#}
                                {{ form.submit }}
                                {{ form.csrf_token }}

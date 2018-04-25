@@ -1,12 +1,14 @@
 # coding:utf-8
 from flask import flash, render_template,url_for,request,redirect,session
 from . import blog
-from app.models import User
-from app import db
-from .forms import Userlogin_form,User_Regist,UserInfo
+from app.models import User, Movie
+from app import db, app
+from .forms import Userlogin_form,User_Regist,UserInfo,EditPassword
 from werkzeug.security import generate_password_hash
 from functools import wraps
-
+from ..admin.views import change_file
+from werkzeug.utils import secure_filename
+import os, stat
 
 def login_req(func):
     @wraps(func)
@@ -18,20 +20,18 @@ def login_req(func):
     return wrap
 
 
-@blog.route("/", methods=["GET", "POST"])
-def index():
+# @blog.route("/", methods=["GET", "POST"])
+# def index():
+#     movies = Movie.query.all()
+#     print("nihao1", movies)
+#     return render_template('index.html',movies=movies)
 
-    # 增加admin账号
-    # from werkzeug.security import generate_password_hash
-    # admin = Admin(name='heyadong', password=generate_password_hash('502505'), is_super=0, role_id=1)
-    # db.session.add(admin)
-    # db.session.commit()
-    # print('')
-    # 查询
-    # user = Admin.query.filter_by(role_id=1).first()
-    # print(request.args.get('name'))
-    return render_template('index.html')
-
+# 首页
+@blog.route('/index/')
+def index1():
+    movies = Movie.query.all()
+    print("nihao1", movies)
+    return render_template('home/index.html',movies=movies)
 
 # 登陆
 @blog.route('/login/',methods=["GET", "POST"])
@@ -45,6 +45,8 @@ def login():
             session['user'] = user.id
             print(session.get('user'))
             return redirect(url_for("blog.index1"))
+        flash('密码不正确','error')
+        return redirect(url_for('blog.login'))
     return render_template('home/login.html', form=form)
 
 # 注册
@@ -73,11 +75,19 @@ def logout():
 
 
 # 更改密码
-
-@blog.route('/password/')
+@blog.route('/password/',methods=["GET","POST"])
 @login_req
 def password():
-    return render_template('home/password.html')
+    form = EditPassword()
+    user = User.query.filter_by(id=session['user']).first()
+    if form.validate_on_submit():
+        data = form.data
+        user.password = generate_password_hash(data['newpw'])
+        db.session.add(user)
+        db.session.commit()
+        flash("修改密码成功",'ok')
+        return redirect(url_for('blog.login'))
+    return render_template('home/password.html',form=form)
 
 
 # 用户中心页面
@@ -85,7 +95,8 @@ def password():
 @login_req
 def user():
     form = UserInfo()
-    form.face_photo.validators=[]
+    usersname = User.query.with_entities(User.name).all()
+    form.face_photo.validators=[]  # 修改face_photo验证
     form.email.validators=[]
     users = User.query.filter_by(id=session['user']).first()
     if request.method == 'GET':
@@ -94,19 +105,26 @@ def user():
         form.phone.data = users.phone
     if form.validate_on_submit():
         data = form.data
+        if (data['name'],) in usersname:
+            flash('昵称已存在','error')
+        if form.face_photo.data.filename:
+            filename = secure_filename(form.face_photo.data.filename)  # 不支持中文名称
+            face_photo = change_file(filename)
+            users.pagra = face_photo
+            if not os.path.exists(app.config['PHOTO_FACE']):
+                os.mkdir(app.config["PHOTO_FACE"])
+                os.chmod(app.config["PHOTO_FACE"], stat.S_IRWXU)  # stat.S_IRWXU 读写权限
+            form.face_photo.data.save(app.config['PHOTO_FACE']+face_photo)
         users.name = data['name']
         users.info = data['info']
         users.phone = data['phone']
         db.session.add(users)
         db.session.commit()
-        flash('修改成功')
+        flash('修改成功','ok')
         return redirect(url_for('blog.user'))
-    return render_template('home/user.html',form=form)
+    return render_template('home/user.html',form=form,users=users)
 
-# 首页
-@blog.route('/index/')
-def index1():
-    return render_template('home/index.html')
+
 
 
 # 评论页面
@@ -139,6 +157,7 @@ def search():
     return render_template("home/search.html")
 
 # 播放
-@blog.route('/play/')
-def play():
-    return render_template("home/play.html")
+@blog.route('/play/<int:id>')
+def play(id):
+    movie = Movie.query.filter_by(id=id).first()
+    return render_template("home/play.html",movie=movie)

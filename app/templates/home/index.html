@@ -53,44 +53,44 @@
                     <tr>
                         <td>上映时间</td>
                         <td>
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;最近</span></a>
+                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;最近</a>
                             &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2017</span></a>
+                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2017</a>
                             &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2016</span></a>
+                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2016</a>
                             &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2015</span></a>
+                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2015</a>
                             &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;更早</span></a>
+                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;更早</a>
                         </td>
                     </tr>
                     <tr>
                         <td>播放数量</td>
                         <td>
-                            <a class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</span></a>
+                            <a class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</a>
                             &nbsp;
-                            <a class="label label-danger"><span class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</span></a>
+                            <a class="label label-danger"><span class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</a>
                         </td>
                     </tr>
                     <tr>
                         <td>评论数量</td>
                         <td>
-                            <a class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</span></a>
+                            <a class="label label-success"><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;从高到底</a>
                             &nbsp;
-                            <a class="label label-danger"><span class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</span></a>
+                            <a class="label label-danger"><span class="glyphicon glyphicon-arrow-up"></span>&nbsp;从低到高</a>
                         </td>
                     </tr>
                 </table>
             </div>
 
-            {% for k in range(1,13) %}
+            {% for movie in movies %}
             <div class="col-md-3">
                 <div class="movielist text-center">
                     <!--<img data-original="holder.js/262x166"
                              class="img-responsive lazy center-block" alt="">-->
-                    <img src="holder.js/262x166" class="img-responsive center-block" alt="">
+                    <img src="{{ url_for('static',filename="uploads/"+movie.logo) }}"src="holder.js/262x166" style="width:262px;height: 166px " class="img-responsive center-block" alt="">
                     <div class="text-left" style="margin-left:auto;margin-right:auto;width:210px;">
-                        <span style="color:#999;font-style: italic;">环太平洋</span><br>
+                        <span style="color:#999;font-style: italic;">{{ movie.title }}</span><br>
                         <div>
                             <span class="glyphicon glyphicon-star" style="color:#FFD119"></span>
                             <span class="glyphicon glyphicon-star" style="color:#FFD119"></span>
@@ -99,7 +99,7 @@
                             <span class="glyphicon glyphicon-star-empty" style="color:#FFD119"></span>
                         </div>
                     </div>
-                    <a href="{{ url_for('blog.play') }}" class="btn btn-primary" target="_blank" role="button"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</a>
+                    <a href="{{ url_for('blog.play',id=movie.id) }}" class="btn btn-primary" target="_blank" role="button"><span class="glyphicon glyphicon-play"></span>&nbsp;播放</a>
                 </div>
             </div>
             {% endfor %}

@@ -265,8 +265,8 @@ var ue = UE.getEditor('input_content',{
 	jwplayer("moviecontainer").setup({
 		flashplayer: "{{ url_for('static',filename="jwplayer/jwplayer.flash.swf")}}",
 		playlist: [{
-			file: "{{ url_for('static',filename="video/htpy.mp4")}}",
-			title: "环太平洋"
+			file: "{{ url_for('static',filename="uploads/"+movie.url)}}",
+			title: "{{ movie.title }}"
 		}],
 		modes: [{
 			type: "html5"

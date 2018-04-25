@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, StringField, PasswordField, ValidationError,FileField,TextAreaField
 from wtforms.validators import DataRequired,Email,Length
+from flask import session
+from werkzeug.security import check_password_hash
 from app.models import User
 
-
+# 用户登陆表单
 class Userlogin_form(FlaskForm):
     username = StringField(
         label="用户",
@@ -27,7 +29,7 @@ class Userlogin_form(FlaskForm):
             raise ValidationError("错误的用户名")
 
 
-# 用户登陆表单
+# 用户注册表单
 class User_Regist(FlaskForm):
     name = StringField(
         label='昵称',
@@ -158,3 +160,44 @@ class UserInfo(FlaskForm):
             'style':"margin-top:6px"
         }
     )
+
+# 密码修改表单
+
+
+class EditPassword(FlaskForm):
+    oldpw = StringField(
+        label="旧密码",
+        validators=[],
+        description="old password",
+        render_kw={
+            'id':'input_oldpw',
+            'class':'form-control',
+            'placeholder':'旧密码',
+            'type': 'password'
+        }
+    )
+    newpw = StringField(
+        label="新密码",
+        validators=[],
+        description="old password",
+        render_kw={
+            'id':'input_oldpw',
+            'class':'form-control',
+            'placeholder':'新密码',
+            'type': 'password'
+        }
+    )
+    submit = SubmitField(
+        "修改密码",
+        render_kw={
+            'class':"btn btn-success"
+        }
+    )
+
+    def validate_oldpw(self,field):
+        old_pw = field.data
+        pw = User.query.filter_by(id=session['user']).first().password
+        if not check_password_hash(pw, old_pw):
+            raise ValidationError("输入的原密码不正确")
+
+

@@ -14,6 +14,13 @@
                 <h3 class="panel-title"><span class="glyphicon glyphicon-map-marker"></span>&nbsp;会员中心</h3>
             </div>
             <div class="panel-body">
+                {% for msg in get_flashed_messages(category_filter=["ok"]) %}
+                    <div class="alert alert-info alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h4><i class="icon fa fa-info"></i> 修改成功</h4>
+                        {{ msg }}
+                    </div>
+                {% endfor %}
                 <form role="form" method="post" enctype="multipart/form-data">
                     <fieldset>
                             <div class="form-group">
@@ -21,7 +28,12 @@
                                 {{ form.name }}
 {#                                <input id="input_name" class="form-control" placeholder="昵称" name="name" type="text" autofocus value="jinlong">#}
                             </div>
-                            <div class="col-md-12" id="error_name"></div>
+                            {% for err in get_flashed_messages(category_filter=['error']) %}
+                            <div class="col-md-12" id="error_name">{{ err }}</div>
+                            {% endfor %}
+                            {% for err in form.name.errors %}
+                            <div class="col-md-12" id="error_name">{{ err }}</div>
+                            {% endfor %}
                             <div class="form-group">
                                 <label for="input_email"><span class="glyphicon glyphicon-envelope"></span>&nbsp;邮箱</label>
                                 {{ form.email }}
@@ -36,8 +48,8 @@
                             <div class="col-md-12" id="error_phone"></div>
                             <div class="form-group">
                                 <label for="input_face"><span class="glyphicon glyphicon-picture"></span>&nbsp;头像</label>
-                                <img src="holder.js/100x100" class="img-responsive img-rounded">
-                                <a class="btn btn-primary glyphicon glyphicon-open" style="margin-top:6px;">&nbsp;上传头像</a>
+                                <img src="{{ url_for("static",filename='photo_face/'+users.pagra) }}" class="img-responsive img-rounded">
+{#                                <a class="btn btn-primary glyphicon glyphicon-open" style="margin-top:6px;">&nbsp;上传头像</a>#}
 {#                                <input id="input_face" class="form-control" name="face" type="hidden" autofocus>#}
                                 {{ form.face_photo }}
                             </div>

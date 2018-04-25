@@ -1,14 +1,15 @@
 from flask import render_template, url_for, redirect, flash, request, session
 from . import admin
-from .forms import LoginForm, TagForm,MovieForm,PreviewForm
-from app.models import Admin,Tag,Movie,Preview,User
-from app import db,app
+from .forms import LoginForm, TagForm, MovieForm, PreviewForm
+from app.models import Admin, Tag, Movie, Preview, User
+from app import db, app
 from werkzeug.security import generate_password_hash
 from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import uuid
 import datetime
+
 
 # 登陆限制。使用装饰器进行登陆限制
 def admin_login_req(func):
@@ -17,14 +18,16 @@ def admin_login_req(func):
         if session.get("admin") is None:
             return redirect(url_for("admin.login"))
         return func(*args, **kwargs)
+
     return decrated_fuc
 
 
 def change_file(filename):
     file_info = os.path.splitext(filename)
     # 使用随机字符串对视频连接加密
-    filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S")+str(uuid.uuid4().hex)+file_info[-1]
+    filename = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + str(uuid.uuid4().hex) + file_info[-1]
     return filename
+
 
 # session.permanent = True  session 过期时间设置，没有设置过期时间默认浏览器关闭session过期
 
@@ -91,8 +94,9 @@ def tag_list(page=None):
     if page is None:
         page = 1
     tags = Tag.query.order_by(Tag.add_time.desc())  # 查询tags并按照添加时间降序排序
-    page_data = tags.paginate(page=page, per_page=2)    # paginate 对进行分页page 参数表示页数，per_page 每页显示数量
-    return render_template("hdmin/tag_list.html", page_data=page_data,name=name)
+    page_data = tags.paginate(page=page, per_page=2)  # paginate 对进行分页page 参数表示页数，per_page 每页显示数量
+    return render_template("hdmin/tag_list.html", page_data=page_data, name=name)
+
 
 # 标签删除
 @admin.route('/tag/delete/<id>')
@@ -104,20 +108,20 @@ def tag_delete(id):
         db.session.delete(tag)  # 删除标签
         db.session.commit()
         flash("删除成功")
-    return redirect(url_for("admin.tag_list",page=None))
+    return redirect(url_for("admin.tag_list", page=None))
+
 
 # 查询标签
 @admin.route('/tag/query/<name>')
 @admin_login_req
 def tag_query(name):
-    tag = Tag.query.filter(Tag.name.ilike("%"+name+"%")).order_by(Tag.add_time.desc())
+    tag = Tag.query.filter(Tag.name.ilike("%" + name + "%")).order_by(Tag.add_time.desc())
     tag_date = tag.paginate(page=1, per_page=1)
     return render_template("hdmin/tag_list.html", page_data=tag_date)
 
 
-
 # 电影添加
-@admin.route('/movie/add/',methods=["GET","POST"])
+@admin.route('/movie/add/', methods=["GET", "POST"])
 @admin_login_req
 def movie_add():
     movie_form = MovieForm()
@@ -135,8 +139,8 @@ def movie_add():
         page = change_file(file_log)
         print(url, page)
         # 保存文件到目录
-        movie_form.url.data.save(app.config["UP_DIR"]+url)
-        movie_form.pages.data.save(app.config["UP_DIR"]+page)
+        movie_form.url.data.save(app.config["UP_DIR"] + url)
+        movie_form.pages.data.save(app.config["UP_DIR"] + page)
         movie = Movie(
             title=movie_data['title'],
             url=url,
@@ -152,20 +156,20 @@ def movie_add():
         )
         db.session.add(movie)
         db.session.commit()
-        flash("添加电影成功","ok")
+        flash("添加电影成功", "ok")
         return redirect(url_for("admin.movie_add"))
-    return render_template("hdmin/movie_add.html",form=movie_form)
+    return render_template("hdmin/movie_add.html", form=movie_form)
 
 
 # 电影列表
-@admin.route('/movie/list/<int:page>',methods=["GET"])
+@admin.route('/movie/list/<int:page>', methods=["GET"])
 @admin_login_req
 def movie_list(page=None):
     if page is None:
-        page=1
+        page = 1
     movies = Movie.query.order_by(Movie.add_time.desc())
     movie_data = movies.paginate(page=page, per_page=2)
-    return render_template("hdmin/movie_list.html",movie_data=movie_data)
+    return render_template("hdmin/movie_list.html", movie_data=movie_data)
 
 
 # 电影删除
@@ -175,16 +179,16 @@ def movie_del(id):
     movie = Movie.query.filter_by(id=id).first_or_404()
     db.session.delete(movie)
     db.session.commit()
-    flash("删除电影成功",'ok')
+    flash("删除电影成功", 'ok')
     return redirect(url_for("admin.movie_list", page=1))
 
 
 # 电影修改
-@admin.route('/movie/edit/<int:id>',methods=["GET","POST"])
+@admin.route('/movie/edit/<int:id>', methods=["GET", "POST"])
 @admin_login_req
 def movie_edit(id):
     movie_form = MovieForm()
-    movies = Movie.query.with_entities(Movie.title).all() # 查询所有标题返回结果是一个tuple()
+    movies = Movie.query.with_entities(Movie.title).all()  # 查询所有标题返回结果是一个tuple()
     movie = Movie.query.filter_by(id=id).first_or_404()
     movie_form.url.validators = []  # 取消为空的验证
     movie_form.pages.validators = []
@@ -199,11 +203,11 @@ def movie_edit(id):
         if movie_form.url.data.filename != '':
             file_url = secure_filename(movie_form.url.data.filename)
             movie.url = change_file(file_url)
-            movie_form.url.data.save(app['UP_DIR']+movie.url)
+            movie_form.url.data.save(app['UP_DIR'] + movie.url)
         if movie_form.pages.data.filename != '':
             file_logo = secure_filename(movie_form.pages.data.filename)
             movie.logo = change_file(file_logo)
-            movie_form.pages.data.save(app["UP_DIR"]+movie.logo)
+            movie_form.pages.data.save(app["UP_DIR"] + movie.logo)
         movie.info = movie_data['info']
         movie.lenth = movie_data['length']
         movie.relase_time = movie_data['release_time']
@@ -211,7 +215,7 @@ def movie_edit(id):
         db.session.add(movie)
         db.session.commit()
         flash("修改电影成功", "ok")
-        return redirect(url_for("admin.movie_edit",id=id))
+        return redirect(url_for("admin.movie_edit", id=id))
     return render_template("hdmin/movie_edit.html",
                            form=movie_form,
                            movie=movie,
@@ -219,8 +223,9 @@ def movie_edit(id):
                            v_star=movie.star,
                            v_logo=movie.logo)
 
+
 # 电影查询
-@admin.route('/movie/search/<int:page>',methods=["GET"])
+@admin.route('/movie/search/<int:page>', methods=["GET"])
 @admin_login_req
 def movie_search(page=None):
     if request.method == "GET":
@@ -228,7 +233,7 @@ def movie_search(page=None):
         movie = Movie.query.filter(Movie.title.ilike("%" + q + "%")).order_by(Movie.add_time.desc())
     if page is None:
         page = 1
-    movie_data = movie.paginate(page=page,per_page=1)
+    movie_data = movie.paginate(page=page, per_page=1)
     return render_template('hdmin/movie_query.html', movie_data=movie_data, name=q)
 
 
@@ -246,13 +251,14 @@ def preview_add():
         if not os.path.exists(app.config["UP_DIR"]):
             os.makedirs(app.config['UP_DIR'])
             os.chmod(app.config['UP_DIR'], 'rw')
-        preview_form.logo.data.save(app.config["UP_DIR"]+logos)
-        preview = Preview(title=preview_data['title'],logo=logos)
+        preview_form.logo.data.save(app.config["UP_DIR"] + logos)
+        preview = Preview(title=preview_data['title'], logo=logos)
         db.session.add(preview)
         db.session.commit()
         flash("添加预告成功", 'ok')
         return redirect(url_for('admin.preview_add'))
     return render_template("hdmin/preview_add.html", form=preview_form)
+
 
 # 预告列表
 @admin.route('/preview/list/<int:page>')
@@ -271,7 +277,7 @@ def preview_list(page=None):
 
 
 # 预告查询
-@admin.route('/preview/search/<int:page>',methods=["GET"])
+@admin.route('/preview/search/<int:page>', methods=["GET"])
 @admin_login_req
 def preview_search(page=None):
     if page is None:
@@ -279,12 +285,12 @@ def preview_search(page=None):
     if request.method == 'GET':
         q = request.args.get('table_search')
         preview_data = Preview.query.filter(Preview.title.ilike('%{}%'.format(q))).order_by(
-                       Preview.add_time.desc()
-                       ).paginate(
+            Preview.add_time.desc()
+        ).paginate(
             page=page,
             per_page=1
         )
-        return render_template('hdmin/preview_search.html',previews=preview_data,q=q)
+        return render_template('hdmin/preview_search.html', previews=preview_data, q=q)
 
 
 # 预告删除
@@ -294,17 +300,17 @@ def preview_delete(id):
     preview = Preview.query.filter_by(id=id).first_or_404()
     db.session.delete(preview)
     db.session.commit()
-    flash("删除预告成功",'ok')
-    return redirect(url_for('admin.preview_list',page=1))
+    flash("删除预告成功", 'ok')
+    return redirect(url_for('admin.preview_list', page=1))
 
 
 # 预告编辑
-@admin.route('/preview/edit/<int:id>',methods=["GET","POST"])
+@admin.route('/preview/edit/<int:id>', methods=["GET", "POST"])
 @admin_login_req
 def preview_edit(id):
     preview_form = PreviewForm()
     preview = Preview.query.filter_by(id=id).first_or_404()
-    preview_form.logo.validators=[]
+    preview_form.logo.validators = []
     if request.method == "GET":
         preview_form.title.data = preview.title
     if preview_form.validate_on_submit():
@@ -313,13 +319,13 @@ def preview_edit(id):
             logo = secure_filename(preview_form.logo.data.filename)  # 获取FileFiled表单文件名称,form.logo.data.filenamme
             logos = change_file(logo)
             preview.logo = logos
-            preview_form.logo.data.save(app.config["UP_DIR"]+logos)
+            preview_form.logo.data.save(app.config["UP_DIR"] + logos)
         preview.title = preview_data['title']
         db.session.add(preview)
         db.session.commit()
         flash("修改预告成功", 'ok')
         return redirect(url_for('admin.preview_edit', id=id))
-    return render_template("hdmin/preview_edit.html", form=preview_form,data=preview)
+    return render_template("hdmin/preview_edit.html", form=preview_form, data=preview)
 
 
 # 用户列表
@@ -332,7 +338,7 @@ def user_list(page=None):
         page=page,
         per_page=3
     )
-    return render_template("hdmin/user_list.html",data=user_data)
+    return render_template("hdmin/user_list.html", data=user_data)
 
 
 @admin.route('/user/view/')
