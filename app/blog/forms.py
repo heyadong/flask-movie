@@ -195,9 +195,27 @@ class EditPassword(FlaskForm):
     )
 
     def validate_oldpw(self,field):
+        # 验证输入旧密码是否正确
         old_pw = field.data
         pw = User.query.filter_by(id=session['user']).first().password
         if not check_password_hash(pw, old_pw):
             raise ValidationError("输入的原密码不正确")
 
+# 评论表单
+class CommentForm(FlaskForm):
+    content = TextAreaField(
+        label='内容',
+        description='content',
+        validators=[DataRequired('评论')],
+        render_kw={
+            'id':"input_content"
+        }
+    )
+    submitc = SubmitField(
+        '提交评论',
+        render_kw={
+            'class':"btn btn-success glyphicon glyphicon-edit",
+            'id':"btn-sub"
+        }
+    )
 

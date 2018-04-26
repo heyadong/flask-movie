@@ -1,9 +1,9 @@
 # coding:utf-8
 from flask import flash, render_template,url_for,request,redirect,session
 from . import blog
-from app.models import User, Movie
+from app.models import User, Movie,Comment
 from app import db, app
-from .forms import Userlogin_form,User_Regist,UserInfo,EditPassword
+from .forms import Userlogin_form,User_Regist,UserInfo,EditPassword,CommentForm
 from werkzeug.security import generate_password_hash
 from functools import wraps
 from ..admin.views import change_file
@@ -157,7 +157,26 @@ def search():
     return render_template("home/search.html")
 
 # 播放
-@blog.route('/play/<int:id>')
-def play(id):
-    movie = Movie.query.filter_by(id=id).first()
-    return render_template("home/play.html",movie=movie)
+@blog.route('/play/<int:id>-<int:page>',methods=['GET','POST'])
+def play(id ,page=None):
+    form = CommentForm()
+    if page is None:
+        page = 1
+    if request.method == "GET":
+        movie = Movie.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=session.get('user')).first()
+        comments = Comment.query.filter_by(movie_id=id).paginate(
+            page=page,
+            per_page=3
+        )
+    if form.validate_on_submit():
+        data = form.data
+        content = data['content']
+        movie_id = id
+        user_id = session['user']
+        comment = Comment(content=content,user_id=user_id,movie_id=movie_id)
+        db.session.add(comment)
+        db.session.commit()
+        flash('评论成功','ok')
+        return redirect(url_for('blog.play',id=id,page=1))
+    return render_template("home/play.html", movie=movie, user=user,form=form,comments=comments)

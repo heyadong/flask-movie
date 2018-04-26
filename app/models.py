@@ -24,7 +24,7 @@ class User(db.Model):
     comments = db.relationship('Comment', backref='user')
 
     def __repr__(self):
-        return '<user %r>' % self.username
+        return '<user %r>' % self.name
 
     def check_pw(self,pw):
         from werkzeug.security import check_password_hash
