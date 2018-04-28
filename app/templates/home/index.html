@@ -26,40 +26,24 @@
                     <tr>
                         <td style="width:10%;">电影标签</td>
                         <td style="width:90%;">
-                            <a class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;标签一</a>
+                            {% for tag in tags %}
+                            <a href="{{ url_for('blog.index1') }}?tag={{ tag.name }}&star={{ p['star'] }}&time={{ p['time'] }}&play_nums={{ p['play_nums'] }}&comments={{ p['comments'] }}" class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;{{ tag.name }}</a>
                             &nbsp;
-                            <a class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;标签一</a>
-                            &nbsp;
-                            <a class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;标签一</a>
-                            &nbsp;
-                            <a class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;标签一</a>
-                            &nbsp;
-                            <a class="label label-info"><span class="glyphicon glyphicon-tag"></span>&nbsp;标签一</a>
-                    </tr>
+                            {% endfor %}
+
                     <tr>
                         <td>电影星级</td>
                         <td>
-                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;一星</a>
+                            {% for v in range(1,6) %}
+                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;{{ v }}星</a>
                             &nbsp;
-                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;二星</a>
-                            &nbsp;
-                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;三星</a>
-                            &nbsp;
-                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;四星</a>
-                            &nbsp;
-                            <a class="label label-warning"><span class="glyphicon glyphicon-star"></span>&nbsp;五星</a>
+                            {% endfor %}
                         </td>
                     </tr>
                     <tr>
                         <td>上映时间</td>
                         <td>
                             <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;最近</a>
-                            &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2017</a>
-                            &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2016</a>
-                            &nbsp;
-                            <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;2015</a>
                             &nbsp;
                             <a class="label label-default"><span class="glyphicon glyphicon-time"></span>&nbsp;更早</a>
                         </td>

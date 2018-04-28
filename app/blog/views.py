@@ -1,7 +1,7 @@
 # coding:utf-8
 from flask import flash, render_template,url_for,request,redirect,session
 from . import blog
-from app.models import User, Movie,Comment
+from app.models import User, Movie,Comment,Tag
 from app import db, app
 from .forms import Userlogin_form,User_Regist,UserInfo,EditPassword,CommentForm
 from werkzeug.security import generate_password_hash
@@ -29,9 +29,31 @@ def login_req(func):
 # 首页
 @blog.route('/index/')
 def index1():
-    movies = Movie.query.all()
-    print("nihao1", movies)
-    return render_template('home/index.html',movies=movies)
+    tags = Tag.query.all()
+    tag = request.args.get('tag')
+    star = request.args.get('star',1)
+    time = request.args.get('time',0)
+    play_nums = request.args.get('play_num',0)
+    comments = request.args.get('comments',0)
+    p = dict(
+        tag=tag,
+        star=star,
+        time=time,
+        play_nums=play_nums,
+        comments=comments
+    )
+    if tag is None:
+        movies = Movie.query.all()
+    else:
+        movies = Movie.query.join(
+             Tag,
+             Movie.tag_id == Tag.id
+        ).filter(
+            Tag.name == tag
+        ).all()
+    # tag_id = Tag.query.joinfilter_by(name=tag).first().id
+    # movies = Movie.query.filter_by(tag_id=tag_id).all()
+    return render_template('home/index.html',movies=movies,tags=tags,p=p)
 
 # 登陆
 @blog.route('/login/',methods=["GET", "POST"])
@@ -106,7 +128,7 @@ def user():
     if form.validate_on_submit():
         data = form.data
         if (data['name'],) in usersname:
-            flash('昵称已存在','error')
+            flash('昵称已存在', 'error')
         if form.face_photo.data.filename:
             filename = secure_filename(form.face_photo.data.filename)  # 不支持中文名称
             face_photo = change_file(filename)
@@ -120,9 +142,9 @@ def user():
         users.phone = data['phone']
         db.session.add(users)
         db.session.commit()
-        flash('修改成功','ok')
+        flash('修改成功', 'ok')
         return redirect(url_for('blog.user'))
-    return render_template('home/user.html',form=form,users=users)
+    return render_template('home/user.html', form=form, users=users)
 
 
 
@@ -152,13 +174,23 @@ def animation():
 
 
 # 搜索
-@blog.route('/search/')
-def search():
-    return render_template("home/search.html")
+@blog.route('/search/<int:page>')
+def search(page):
+    if page is None:
+        page = 1
+    key = request.args.get('key','')
+    movie = Movie.query.filter(
+        Movie.title.ilike('%' + key + '%')).paginate(
+        page=page,
+        per_page=1
+    )
+    counts = len(list(movie.items))
+    return render_template("home/search.html",data=movie,key=key,counts=counts)
+
 
 # 播放
 @blog.route('/play/<int:id>-<int:page>',methods=['GET','POST'])
-def play(id ,page=None):
+def play(id, page=None):
     form = CommentForm()
     if page is None:
         page = 1
@@ -174,9 +206,9 @@ def play(id ,page=None):
         content = data['content']
         movie_id = id
         user_id = session['user']
-        comment = Comment(content=content,user_id=user_id,movie_id=movie_id)
+        comment = Comment(content=content, user_id=user_id, movie_id=movie_id)
         db.session.add(comment)
         db.session.commit()
         flash('评论成功','ok')
-        return redirect(url_for('blog.play',id=id,page=1))
-    return render_template("home/play.html", movie=movie, user=user,form=form,comments=comments)
+        return redirect(url_for('blog.play', id=id, page=1))
+    return render_template("home/play.html", movie=movie, user=user, form=form, comments=comments)

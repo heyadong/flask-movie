@@ -39,3 +39,44 @@
     </li>
 </ul>
 {% endmacro %}
+{% macro pagination1(url,data,key) %}
+<ul class="pagination">
+    <li>
+        <a href="{{ url_for(url,page=1) }}?key="+key aria-label="First">
+            <span aria-hidden="true">首页</span>
+        </a>
+    </li>
+    {% if data.has_prev %}
+    <li>
+        <a href="{{ url_for(url,page=data.prev_num) }}?key="+key aria-label="Previous">
+            <span aria-hidden="true">上一页</span>
+        </a>
+    </li>
+    {% else %}
+    <li class="disabled">
+        <a href="#" aria-label="Previous">
+            <span aria-hidden="true">上一页</span>
+        </a>
+    </li>
+    {% endif %}
+    <li><a href="#">{{ data.page }}&nbsp;/&nbsp;{{ data.pages }}</a></li>
+    {% if data.has_next %}
+    <li>
+        <a href="{{ url_for(url,page=data.next_num) }}?key="+key aria-label="Next">
+            <span aria-hidden="true">下一页</span>
+        </a>
+    </li>
+    {% else %}
+     <li class="disabled">
+        <a href="#" aria-label="Next">
+            <span aria-hidden="true">下一页</span>
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        <a href="{{ url_for(url,page=data.pages) }}?key="+key aria-label="Last">
+            <span aria-hidden="true">尾页</span>
+        </a>
+    </li>
+</ul>
+{% endmacro %}
