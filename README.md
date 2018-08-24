@@ -71,8 +71,8 @@ render_kw{} 表单其他信息css样式
 1.前端渲染表单提示消息使用，form.account.errors
 
 ```
-     {% for error in form.account.errors %}
-     {% endfor %}
+  {% for error in form.account.errors %}
+  {% endfor %}
 ```
      
      
@@ -82,13 +82,11 @@ render_kw{} 表单其他信息css样式
   flask.flash(message，kindofmsg) 第二个参数表示消息的种类，
 
 ```
-    {{
-    {% for message in get_flashed_messages(category_filter['ok']) %}
-    {{ message}}
-    {% endfor %} }}
+  {{
+  {% for message in get_flashed_messages(category_filter['ok']) %}
+  {{ message}}
+  {% endfor %} }}
 ```
-
-    
 day6 2018-3-27
 Flask_SQLAlchemy 使用ORM的增删改查：
 
@@ -96,46 +94,46 @@ Flask_SQLAlchemy 使用ORM的增删改查：
 
 ### 增加
     
-    ```
-    movie = Movie(id=id,title=title)
-    db.session.add(movie)
-    db.session.commit()
+ ```
+  movie = Movie(id=id,title=title)
+  db.session.add(movie)
+  db.session.commit()
     
-    
-    ''' Insert into movie(id, title) values(id,title) '''
-    ```
+   
+   Insert into movie(id, title) values(id,title) 
+ ```
     
  ### 删除
     
-    ```
-    movie= Movie.query.filter_by(id=moive_id).first()
-    db.session.delete()
-    db.session.commit()
-    ''' delete from movie where id=movie_id '''
-    ```
+  ```
+   movie= Movie.query.filter_by(id=moive_id).first()
+   db.session.delete()
+   db.session.commit()
+   ''' delete from movie where id=movie_id '''
+  ```
     
 ### 修改
     
 ### 查询
-    
-    
+```
     movie.query.filter_by(id=movie_id).first()
+```
     
 ### 模糊查询
     
-    ```
-    movie.query.filter(Movie.title.ilile("%name%").order_by().all()
-    select * from movie where title like '%name%'
-    ```
+ ```
+  movie.query.filter(Movie.title.ilile("%name%").order_by().all()
+  select * from movie where title like '%name%'
+ ```
     
     
 ### 查询列
-   ```
-    movie.query.with_entities(movie.title).all() 
-    返回的是tuple
+ ```
+   movie.query.with_entities(movie.title).all() 
+   返回的是tuple
     
     
- <h3>使用sqlalchemy分页</h3>  
+  <h3>使用sqlalchemy分页</h3>  
  ```
 day7 2018-4-11
 
