@@ -3,47 +3,6 @@
 day1 2018-3-20：
 
 
-使用vue.js 添加css 样式：
-
-
-vue.js 结构：
-
-
-    var = new Vue({
- 
-     delimiters:['${','}'],
-     el: #app,
-     data:{
-     isactive:true
-     site:"baidu.com"
-     },
-     methods:{
-         function1: function(){
-             return this.site
-          },
-          function2: function(){
-              return null     
-          },
-         },       
-     })
- 
- 
- delimiters: 更改转义字符 delimiters:['${','}'] Vue.js默认转义字符是{{ }},与jinja2的默认转义字符相同，
- 
- 前后端未完全分离会导致错误的转义， 使用delimiters将Vue.js的转义字符更改为 ${ }.
- 
- el: 标签的id,注意id前面的
- 
- data: 数据
- 
- methods：函数
- 
-    {{"{<div id='app' class="list-group-item" v-bind:class="{active:isactive}"> </div>}"}}
-
-使用v-bind指令 当isactive==true 将给div添加一个active 样式相当于：
-
-    {{-"{<div id='app' class="list-group-item active"> </div>}"-}}
-
 day4 2018-3-22
 <h3>自定义404页面：</h3>
 
@@ -91,8 +50,7 @@ check_password_hash(a,b) 比较两个值的hash值是否相同，返回True,Fals
 
 使用flask_wtf 定义表单。
 
-
- 
+ ```
     from flask_wtf inmport FlaskForm
     from wtforms import StringField, SubmitField, PasswordField
     # 表单验证
@@ -100,6 +58,7 @@ check_password_hash(a,b) 比较两个值的hash值是否相同，返回True,Fals
     class LoginForm(FlaskForm):
       account = StringField()
       password = PasswordField()
+  ```
       
       
       
@@ -111,9 +70,10 @@ render_kw{} 表单其他信息css样式
 
 1.前端渲染表单提示消息使用，form.account.errors
 
-
+```
      {% for error in form.account.errors %}
      {% endfor %}
+```
      
      
 2.flask消息的闪现，提示密码输入错误。前端使用for循环，
@@ -121,65 +81,67 @@ render_kw{} 表单其他信息css样式
   
   flask.flash(message，kindofmsg) 第二个参数表示消息的种类，
 
-
+```
     {{
     {% for message in get_flashed_messages(category_filter['ok']) %}
     {{ message}}
     {% endfor %} }}
-    
-    
-  
+```
+
     
 day6 2018-3-27
 Flask_SQLAlchemy 使用ORM的增删改查：
 
 
 
-# 增加
+### 增加
     
-    
+    ```
     movie = Movie(id=id,title=title)
     db.session.add(movie)
     db.session.commit()
     
     
     ''' Insert into movie(id, title) values(id,title) '''
+    ```
     
+ ### 删除
     
- # 删除
-    
-    
+    ```
     movie= Movie.query.filter_by(id=moive_id).first()
     db.session.delete()
     db.session.commit()
     ''' delete from movie where id=movie_id '''
+    ```
     
-# 修改
+### 修改
     
-# 查询
+### 查询
     
     
     movie.query.filter_by(id=movie_id).first()
     
-# 模糊查询
+### 模糊查询
     
-    
+    ```
     movie.query.filter(Movie.title.ilile("%name%").order_by().all()
-    ''' select * from movie where title like '%name%' '''
+    select * from movie where title like '%name%'
+    ```
     
     
-# 查询列
-   
+### 查询列
+   ```
     movie.query.with_entities(movie.title).all() 
-    
     返回的是tuple
     
     
  <h3>使用sqlalchemy分页</h3>  
+ ```
 day7 2018-4-11
 
-
+```
 User.query.oreder_by(user.add_time()).paginate(page=1,)
+```
 
 
 Jinja2 支持宏
